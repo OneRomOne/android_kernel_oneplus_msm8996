@@ -1136,4 +1136,8 @@ config TOUCHSCREEN_SYNAPTICS_S3320_I2C_RMI
 config TOUCHSCREEN_SWEEP2SLEEP
 	bool "Enable kernel support for Sweep2Sleep"
 	default n
+
+config BOEFFLA_POWERKEY_HELPER
+	bool "Enable Boeffla Powerkey helper"
+	default n
 endif
