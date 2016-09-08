@@ -1,24 +1,25 @@
 #!/bin/bash
 
-# Boeffla Kernel Universal Build Script
+# RADIOACTIVE Kernel Universal Build Script
 #
 # 64 bit version (OnePlus 2, CM13)
 #
-# (C) Lord Boeffla (aka andip71), 01.07.2016
+# Radioactive - NuclearTeam
 
 #######################################
 # Parameters to be configured manually
 #######################################
 
-BOEFFLA_VERSION="1.0-test-CM13.0-OnePlus3"
+RADIOACTIVE_VERSION="1.0-test-CM13.0-OnePlus3"
 
-TOOLCHAIN="/opt/toolchains/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
+TOOLCHAIN="/home/david/android/toolchain/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
+ARCHITECTURE=arm64
 
 COMPILE_DTB="n"
 MODULES_IN_SYSTEM="y"
-OUTPUT_FOLDER=""
+OUTPUT_FOLDER="out"
 
-DEFCONFIG="boeffla_defconfig"
+DEFCONFIG="radioactive_defconfig"
 DEFCONFIG_VARIANT=""
 
 FINISH_MAIL_TO=""
@@ -53,7 +54,7 @@ REPACK_PATH="$ROOT_PATH/repack"
 TOOLCHAIN_COMPILE=`grep "^CROSS_COMPILE" $SOURCE_PATH/Makefile`
 TOOLCHAIN_COMPILE=/`echo $TOOLCHAIN_COMPILE | sed -n -e 's/^.* \///p'`
 
-BOEFFLA_DATE=$(date +%Y%m%d)
+RADIOACTIVE_DATE=$(date +%Y%m%d)
 GIT_BRANCH=`git symbolic-ref --short HEAD`
 
 if [ -z "$NUM_CPUS" ]; then
@@ -70,7 +71,11 @@ if [ -f ~/x-settings.sh ]; then
 	. ~/x-settings.sh
 fi
 
-BOEFFLA_FILENAME="boeffla-kernel-$BOEFFLA_VERSION"
+RADIOACTIVE_FILENAME="RADIOACTIVE-kernel-$RADIOACTIVE_VERSION"
+
+# set environment
+export ARCH=$ARCHITECTURE
+export CROSS_COMPILE="$TOOLCHAIN"
 
 
 #####################
@@ -90,7 +95,7 @@ step0_copy_code()
 	cp -r $SOURCE_PATH/* $BUILD_PATH
 
 	# Replace version information in mkcompile_h with the one from x-settings.sh
-	sed "s/\`echo \$LINUX_COMPILE_BY | \$UTS_TRUNCATE\`/Boeffla-Kernel-$BOEFFLA_VERSION-$BOEFFLA_DATE/g" -i $BUILD_PATH/scripts/mkcompile_h
+	sed "s/\`echo \$LINUX_COMPILE_BY | \$UTS_TRUNCATE\`/RADIOACTIVE-Kernel-$RADIOACTIVE_VERSION-$RADIOACTIVE_DATE/g" -i $BUILD_PATH/scripts/mkcompile_h
 	sed "s/\`echo \$LINUX_COMPILE_HOST | \$UTS_TRUNCATE\`/andip71/g" -i $BUILD_PATH/scripts/mkcompile_h
 }
 
@@ -229,9 +234,9 @@ step4_prepare_anykernel()
 
 	# replace variables in anykernel script
 	cd $REPACK_PATH
-	KERNELNAME="Flashing Boeffla-Kernel $BOEFFLA_VERSION"
+	KERNELNAME="Flashing RADIOACTIVE-Kernel $RADIOACTIVE_VERSION"
 	sed -i "s;###kernelname###;${KERNELNAME};" META-INF/com/google/android/update-binary;
-	COPYRIGHT="(c) Lord Boeffla (aka andip71), $(date +%Y.%m.%d-%H:%M:%S)"
+	COPYRIGHT="NuclearTeam - Radioactive, $(date +%Y.%m.%d-%H:%M:%S)"
 	sed -i "s;###copyright###;${COPYRIGHT};" META-INF/com/google/android/update-binary;
 }
 
@@ -244,22 +249,22 @@ step5_create_anykernel_zip()
 
 	# create zip file
 	cd $REPACK_PATH
-	zip -r9 $BOEFFLA_FILENAME.recovery.zip * -x $BOEFFLA_FILENAME.recovery.zip
+	zip -r9 $RADIOACTIVE_FILENAME.recovery.zip * -x $RADIOACTIVE_FILENAME.recovery.zip
 
 	# sign recovery zip if there are keys available
 	if [ -f "$BUILD_PATH/tools_boeffla/testkey.x509.pem" ]; then
 		echo -e ">>> signing recovery zip\n"
-		java -jar $BUILD_PATH/tools_boeffla/signapk.jar -w $BUILD_PATH/tools_boeffla/testkey.x509.pem $BUILD_PATH/tools_boeffla/testkey.pk8 $BOEFFLA_FILENAME.recovery.zip $BOEFFLA_FILENAME.recovery.zip_signed
-		cp $BOEFFLA_FILENAME.recovery.zip_signed $BOEFFLA_FILENAME.recovery.zip
-		rm $BOEFFLA_FILENAME.recovery.zip_signed
+		java -jar $BUILD_PATH/tools_boeffla/signapk.jar -w $BUILD_PATH/tools_boeffla/testkey.x509.pem $BUILD_PATH/tools_boeffla/testkey.pk8 $RADIOACTIVE_FILENAME.recovery.zip $RADIOACTIVE_FILENAME.recovery.zip_signed
+		cp $RADIOACTIVE_FILENAME.recovery.zip_signed $RADIOACTIVE_FILENAME.recovery.zip
+		rm $RADIOACTIVE_FILENAME.recovery.zip_signed
 	fi
 
-	md5sum $BOEFFLA_FILENAME.recovery.zip > $BOEFFLA_FILENAME.recovery.zip.md5
+	md5sum $RADIOACTIVE_FILENAME.recovery.zip > $RADIOACTIVE_FILENAME.recovery.zip.md5
 
 	# Creating additional files for load&flash
 	echo -e ">>> create load&flash files\n"
 
-	cp $BOEFFLA_FILENAME.recovery.zip cm-kernel.zip
+	cp $RADIOACTIVE_FILENAME.recovery.zip cm-kernel.zip
 	md5sum cm-kernel.zip > checksum
 }
 
@@ -286,11 +291,11 @@ step8_transfer_kernel()
 
 	# transfer only if SMB share configured
 	if [ ! -z "$SMB_SHARE_KERNEL" ]; then
-		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "mkdir $SMB_FOLDER_KERNEL\\$BOEFFLA_VERSION"
-		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/$BOEFFLA_FILENAME.recovery.zip $SMB_FOLDER_KERNEL\\$BOEFFLA_VERSION\\$BOEFFLA_FILENAME.recovery.zip"
-		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/$BOEFFLA_FILENAME.recovery.zip.md5 $SMB_FOLDER_KERNEL\\$BOEFFLA_VERSION\\$BOEFFLA_FILENAME.recovery.zip.md5"
-		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/checksum $SMB_FOLDER_KERNEL\\$BOEFFLA_VERSION\\checksum"
-		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/cm-kernel.zip $SMB_FOLDER_KERNEL\\$BOEFFLA_VERSION\\cm-kernel.zip"
+		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "mkdir $SMB_FOLDER_KERNEL\\$RADIOACTIVE_VERSION"
+		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/$RADIOACTIVE_FILENAME.recovery.zip $SMB_FOLDER_KERNEL\\$RADIOACTIVE_VERSION\\$RADIOACTIVE_FILENAME.recovery.zip"
+		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/$RADIOACTIVE_FILENAME.recovery.zip.md5 $SMB_FOLDER_KERNEL\\$RADIOACTIVE_VERSION\\$RADIOACTIVE_FILENAME.recovery.zip.md5"
+		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/checksum $SMB_FOLDER_KERNEL\\$RADIOACTIVE_VERSION\\checksum"
+		smbclient $SMB_SHARE_KERNEL -U $SMB_AUTH_KERNEL -c "put $REPACK_PATH/cm-kernel.zip $SMB_FOLDER_KERNEL\\$RADIOACTIVE_VERSION\\cm-kernel.zip"
 		return
 	fi
 
@@ -299,12 +304,12 @@ step8_transfer_kernel()
 		rm -rf ~/bbuild_transfer
 		mkdir ~/bbuild_transfer
 		echo "$SSH_FTP_PW" | sshfs "$SSH_FTP_REMOTE" ~/bbuild_transfer -p "$SSH_FTP_PORT" -o password_stdin
-		mkdir -p ~/bbuild_transfer/$BOEFFLA_VERSION
+		mkdir -p ~/bbuild_transfer/$RADIOACTIVE_VERSION
 
-		cp $REPACK_PATH/$BOEFFLA_FILENAME.recovery.zip ~/bbuild_transfer/$BOEFFLA_VERSION
-		cp $REPACK_PATH/$BOEFFLA_FILENAME.recovery.zip.md5 ~/bbuild_transfer/$BOEFFLA_VERSION
-		cp $REPACK_PATH/checksum ~/bbuild_transfer/$BOEFFLA_VERSION
-		cp $REPACK_PATH/cm-kernel.zip ~/bbuild_transfer/$BOEFFLA_VERSION
+		cp $REPACK_PATH/$RADIOACTIVE_FILENAME.recovery.zip ~/bbuild_transfer/$RADIOACTIVE_VERSION
+		cp $REPACK_PATH/$RADIOACTIVE_FILENAME.recovery.zip.md5 ~/bbuild_transfer/$RADIOACTIVE_VERSION
+		cp $REPACK_PATH/checksum ~/bbuild_transfer/$RADIOACTIVE_VERSION
+		cp $REPACK_PATH/cm-kernel.zip ~/bbuild_transfer/$RADIOACTIVE_VERSION
 
 		sync
 		sleep 1
@@ -324,7 +329,7 @@ step9_send_finished_mail()
 	if [ -z "$FINISH_MAIL_TO" ]; then
 		echo -e "No mail address configured, not sending mail.\n"	
 	else
-		cat $ROOT_PATH/compile.log | /usr/bin/mailx -s "Compilation for Boeffla-Kernel $BOEFFLA_VERSION finished!!!" $FINISH_MAIL_TO
+		cat $ROOT_PATH/compile.log | /usr/bin/mailx -s "Compilation for RADIOACTIVE-Kernel $RADIOACTIVE_VERSION finished!!!" $FINISH_MAIL_TO
 	fi
 }
 
@@ -500,8 +505,8 @@ echo "======================================================================"
 echo
 echo "Parameters:"
 echo
-echo "  Boeffla version:  $BOEFFLA_VERSION"
-echo "  Boeffla date:     $BOEFFLA_DATE"
+echo "  RADIOACTIVE version:  $RADIOACTIVE_VERSION"
+echo "  RADIOACTIVE date:     $RADIOACTIVE_DATE"
 echo "  Git branch:       $GIT_BRANCH"
 echo "  CPU Cores:        $NUM_CPUS"
 echo
