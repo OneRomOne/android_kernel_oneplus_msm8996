@@ -12,7 +12,7 @@
 
 RADIOACTIVE_VERSION="1.0-test-CM13.0-OnePlus3"
 
-TOOLCHAIN="/home/david/android/toolchain/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
+TOOLCHAIN="/home/acuicultor/Android/toolchains/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
 ARCHITECTURE=arm64
 
 COMPILE_DTB="n"
