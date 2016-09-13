@@ -71,7 +71,7 @@ if [ -f ~/x-settings.sh ]; then
 	. ~/x-settings.sh
 fi
 
-RADIOACTIVE_FILENAME="RADIOACTIVE-kernel-$RADIOACTIVE_VERSION"
+RADIOACTIVE_FILENAME="RADIOACTIVE-KERNEL-$RADIOACTIVE_VERSION"
 
 # set environment
 export ARCH=$ARCHITECTURE
@@ -96,7 +96,7 @@ step0_copy_code()
 
 	# Replace version information in mkcompile_h with the one from x-settings.sh
 	sed "s/\`echo \$LINUX_COMPILE_BY | \$UTS_TRUNCATE\`/RADIOACTIVE-Kernel-$RADIOACTIVE_VERSION-$RADIOACTIVE_DATE/g" -i $BUILD_PATH/scripts/mkcompile_h
-	sed "s/\`echo \$LINUX_COMPILE_HOST | \$UTS_TRUNCATE\`/andip71/g" -i $BUILD_PATH/scripts/mkcompile_h
+	sed "s/\`echo \$LINUX_COMPILE_HOST | \$UTS_TRUNCATE\`/acuicultor/g" -i $BUILD_PATH/scripts/mkcompile_h
 }
 
 step1_make_clean()
