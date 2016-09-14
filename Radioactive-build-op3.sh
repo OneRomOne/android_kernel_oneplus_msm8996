@@ -10,7 +10,7 @@
 # Parameters to be configured manually
 #######################################
 
-RADIOACTIVE_VERSION="V1.3-CM13-OP3-TEST"
+RADIOACTIVE_VERSION="V1.5-CM13-OP3-TEST"
 
 TOOLCHAIN="/home/acuicultor/Android/toolchains/aarch64-linux-android-5.3-linaro/bin/aarch64-linux-android-"
 ARCHITECTURE=arm64
