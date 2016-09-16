@@ -408,11 +408,10 @@ static ssize_t kcal_invert_store(struct device *dev,
 		(lut_data->invert == kcal_invert))
 		return -EINVAL;
 
-	//disable
-	lut_data->invert = 0;
+	lut_data->invert = kcal_invert;
 
-	//mdss_mdp_kcal_update_igc(lut_data);
-	//mdss_mdp_kcal_display_commit();
+	mdss_mdp_kcal_update_igc(lut_data);
+	mdss_mdp_kcal_display_commit();
 
 	return count;
 }
@@ -574,7 +573,7 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 	ret = device_create_file(&pdev->dev, &dev_attr_kcal);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_min);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_enable);
-	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_invert);
+	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_invert_obsolete);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_sat);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_hue);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_val);
@@ -592,7 +591,11 @@ static int kcal_ctrl_remove(struct platform_device *pdev)
 	device_remove_file(&pdev->dev, &dev_attr_kcal);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_min);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_enable);
+<<<<<<< HEAD
 	device_remove_file(&pdev->dev, &dev_attr_kcal_invert);
+=======
+	device_remove_file(&pdev->dev, &dev_attr_kcal_invert_obsolete);
+>>>>>>> 8cd2a35... msm: mdss: kcal: Make KCAL master switch working again
 	device_remove_file(&pdev->dev, &dev_attr_kcal_sat);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_hue);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_val);
