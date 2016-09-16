@@ -1175,10 +1175,6 @@ static void gesture_judge(struct synaptics_ts_data *ts)
 	// Get key code based on registered gesture.
 	switch (gesture) {
 		case DouTap:
-#ifdef WAKE_GESTURES
-			if (!dt2w_switch && s2w_switch)
-				break;
-#endif
 			keyCode = KEY_DOUBLE_TAP;
 			break;
 		case UpVee:
@@ -1613,8 +1609,7 @@ static ssize_t coordinate_proc_read_func(struct file *file, char __user *user_bu
 
 static void gesture_enable(struct synaptics_ts_data *ts)
 {
-	ts->gesture_enable = gestures_switch || s2w_switch || dt2w_switch ||
-		DouTap_gesture || Circle_gesture || UpVee_gesture ||
+	ts->gesture_enable = DouTap_gesture || Circle_gesture || UpVee_gesture ||
                 (LeftVee_gesture && RightVee_gesture && DouSwip_gesture) ? 1 : 0;
 }
 
@@ -1831,7 +1826,7 @@ static ssize_t synap_write_address(struct file *file, const char __user *buffer,
     }
     else
         block = temp_block;
-    return count;
+	return count;
 }
 
 #ifdef SUPPORT_GLOVES_MODE
@@ -3820,8 +3815,8 @@ static int synaptics_ts_probe(struct i2c_client *client, const struct i2c_device
 	TP_FW = CURRENT_FIRMWARE_ID;
 	sprintf(ts->fw_id,"0x%x",TP_FW);
 
-	memset(ts->fw_name, 0, TP_FW_NAME_MAX_LEN);
-	memset(ts->test_limit_name, 0, TP_FW_NAME_MAX_LEN);
+	memset(ts->fw_name,TP_FW_NAME_MAX_LEN,0);
+	memset(ts->test_limit_name,TP_FW_NAME_MAX_LEN,0);
 
 	//sprintf(ts->manu_name, "TP_SYNAPTICS");
     synaptics_rmi4_i2c_read_block(ts->client, F01_RMI_QUERY11,\
